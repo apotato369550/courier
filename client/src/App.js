@@ -1,5 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
+import io from "socket.io-client";
+
+const socket = io.connect("http://localhost:4000")
+
+// figure out how to access socket through react or some shiz
 
 function App() {
   return (

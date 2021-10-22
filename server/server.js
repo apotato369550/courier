@@ -6,6 +6,9 @@ const io = require("socket.io")(server)
 
 io.on("connection", client => {
     console.log(client)
+    client.on("message", message => {
+        console.log("Message Recieved" + message)
+    })
 })
 
 // run at port 3001

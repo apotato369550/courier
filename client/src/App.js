@@ -4,7 +4,9 @@ import io from "socket.io-client";
 
 const socket = io.connect("http://localhost:4000")
 
-// figure out how to access socket through react or some shiz
+socket.emit("message", "Hello World!")
+
+// work it out from here
 
 function App() {
   return (

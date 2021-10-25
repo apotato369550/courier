@@ -1,30 +1,34 @@
-import logo from './logo.svg';
 import './App.css';
 import io from "socket.io-client";
+import CreateButton from './components/createButton';
+import JoinButton from './components/joinButton';
+import RoomEntry from './components/roomEntry';
+import ChatDisplay from './components/chatDisplay';
+import ChatEntry from './components/chatEntry';
+import SendButton from './components/sendButton';
+// make a form component
+// create room component
+// join join room component
 
 const socket = io.connect("http://localhost:4000")
 
 socket.emit("message", "Hello World!")
 
-// work it out from here
+// test it here
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div id="initial-screen">
+        <CreateButton socket={socket} />
+        <JoinButton />
+        <RoomEntry />
+      </div>
+      <div id="chat-screen">
+        <ChatDisplay />
+        <ChatEntry />
+        <SendButton />
+      </div>
     </div>
   );
 }

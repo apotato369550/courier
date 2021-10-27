@@ -5,6 +5,7 @@ const server = require("http").Server(app)
 const io = require("socket.io")(server)
 
 const clientRooms = {};
+const clientCount = {};
 
 function makeID(length){
     var result = "";
@@ -23,7 +24,31 @@ io.on("connection", client => {
     client.on("joinRoom", joinRoomHandler)
 
     function joinRoomHandler(roomCode){
-        return
+        const room = io.sockets.adapter.rooms[roomCode];
+
+        let users;
+        if(room){
+            users = room.sockets;
+        } else {
+            console.log("Having trouble finding room...")
+        }
+
+        let clients;
+        if(users){
+            clients = Object.keys(users).length;
+        } else {
+            console.log("Having trouble finding sockets...")
+        }
+
+        if(clients == 0){
+            client.emit("unknownRoom")
+        }
+
+        clientRooms[client.id] = roomCode;
+        clientCount[client.id]++;
+        client.number = clientCount[client.id];
+
+        client.emit("initialize", client.number)
     }
 
     function createRoomHandler(){
@@ -33,16 +58,32 @@ io.on("connection", client => {
         // client.id?
         console.log(client.id);
         clientRooms[client.id] = roomCode;
+        clientCount[client.id] = 1;
+        // create a handler for the roomcode VVV
         client.emit("roomCode", roomCode);
 
         client.join(roomCode);
         // try to remember what these things did below in the original programVVV
-        client.number = 1; // this is for the client's id to be accessed
-        client.emit("initialize");
+        client.number = clientCount[client.id]; // this is for the client's id to be accessed
+        client.emit("initialize", client.number);
     }
 
-    function messageHandler(message){
-        console.log("This is the message that was sent: " + message)
+    function messageHandler(newMessage){
+        console.log("This is the message that was sent: " + newMessage)
+
+        const roomName = clientRooms[client.id];
+        if(!roomName){
+            return;
+        }
+
+        // i better fucking make sure that this works
+
+        let message = {
+            text: newMessage,
+            id: client.id
+        }
+
+        io.sockets.in(roomName).emit("newMessage", JSON.stringify(message))
     }
 })
 

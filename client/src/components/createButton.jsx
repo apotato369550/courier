@@ -1,8 +1,10 @@
 import React from "react";
 
-const CreateButton = ({ socket }) => {
-    let createRoomHandler = (event) => {
+const CreateButton = ({ socket, startedChatting, setStartedChatting }) => {
+    const createRoomHandler = (event) => {
         socket.emit("createRoom");
+        setStartedChatting(!startedChatting)
+        setStartedChatting(!startedChatting)
     }
    
     return (

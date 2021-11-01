@@ -24,6 +24,7 @@ io.on("connection", client => {
     client.on("joinRoom", joinRoomHandler)
 
     function joinRoomHandler(roomCode){
+        // work on join room handler
         const room = io.sockets.adapter.rooms[roomCode];
 
         let users;
@@ -52,8 +53,6 @@ io.on("connection", client => {
     }
 
     function createRoomHandler(){
-        console.log("CURRENTLY CREATING ROOM")
-
         let roomCode = makeID(5);
         // client.id?
         console.log(client.id);
@@ -69,8 +68,6 @@ io.on("connection", client => {
     }
 
     function messageHandler(newMessage){
-        console.log("This is the message that was sent: " + newMessage)
-
         const roomName = clientRooms[client.id];
         if(!roomName){
             return;
@@ -78,16 +75,20 @@ io.on("connection", client => {
 
         // i better fucking make sure that this works
 
-        let message = {
+        let data = {
             text: newMessage,
             id: client.id
         }
 
-        io.sockets.in(roomName).emit("newMessage", JSON.stringify(message))
+        // might emit to every socket, but yours
+        // i think this might be the problemVVVV 
+        io.sockets.in(roomName).emit("newMessage", JSON.stringify(data))
+        
+        console.log(data)
     }
 })
 
-// run at port 3001
+// where the fuck are the messages coming from
 io.listen(4000)
 
 

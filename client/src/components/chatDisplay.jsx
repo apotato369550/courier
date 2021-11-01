@@ -1,10 +1,15 @@
 import React from "react";
+import Message from "../components/message.jsx";
 
-const ChatDisplay = ({ }) => {
-   
-    return (
+const ChatDisplay = ({ socket, messages, setMessages, id }) => {
+   // map messages and stuff
+
+   return (
         <div className="overflow-auto">
-            <p>Render chat messages here. Eat my ass motherfucker yeet yeet lmao feet.</p>
+            <p>Chat Display: </p>
+            {messages.map(message => {
+                return <Message message={message} />
+            })}
         </div>
     )
 }

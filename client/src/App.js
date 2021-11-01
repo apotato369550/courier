@@ -6,54 +6,85 @@ import RoomEntry from './components/roomEntry';
 import ChatDisplay from './components/chatDisplay';
 import ChatEntry from './components/chatEntry';
 import SendButton from './components/sendButton';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // make a form component
 // create room component
 // join join room component
 
 const socket = io.connect("http://localhost:4000")
+const chatMessages = [];
 
+// i think this solves it
+let clientId = 0;
+let room = "";
 
-// create an interface that allows us to emit messages
+// check react tutorial video on how to deal w/ this
 
-// test it here
+socket.on("newMessage", (newMessage) => {
+  console.log(newMessage)
+  const data = JSON.parse(newMessage)
+  // console.log("A NEW MESSAGE HAS BEEN RECIEVED. THE NEW MESSAGE: " + message.text)
+  // console.log("THIS MESSAGE CAME FROM: " + message.id)
+  chatMessages.push(data.text)
+  // console.log(chatMessages)
+
+})
+
+socket.on("roomCode", (code) => {
+  // console.log("ROOM CODE RECIEVED. THE CURRENT ROOM CODE IS: " + roomCode);
+  room = code;
+  console.log("Code Recieved: " + code)
+  // this doesn't re-assign the global variable???
+  // console.log(room)
+})
+
+socket.on("initialize", (id) => {
+  document.getElementById("initial-screen").style.display = "none";
+  document.getElementById("chat-screen").style.display = "block";
+  clientId = id;
+  console.log("ID Recieved: " + clientId)
+})
 
 function App() {
-  const [ID, setID] = useState(0);
-  const [roomCode, setRoomCode] = useState("")
   const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [startedChatting, setStartedChatting] = useState(0);
+  const [messageSent, setMessageSent] = useState(0);
+  const [messageRecieved, setMessageRecieved] = useState(0);
 
-  socket.emit("message", "Hello World!")
-
+  // fix this tomorrow\
+  // i kinda figured it out now
+  // figure this mf out
+  // only variables that are usestate variables will be allowed in useffect
+  // this should, in theory, work
   socket.on("newMessage", (newMessage) => {
-    const message = JSON.parse(newMessage)
-    console.log("A NEW MESSAGE HAS BEEN RECIEVED. THE NEW MESSAGE: " + message.text)
-    console.log("THIS MESSAGE CAME FROM: " + message.id)
-  })
-   
-  socket.on("roomCode", (roomCode) => {
-    console.log("ROOM CODE RECIEVED. THE CURRENT ROOM CODE IS: " + roomCode);
-    setRoomCode(roomCode)
-  })
-  
-  socket.on("initialize", (id) => {
-    console.log("CURRENTLY INITIALIZING APPLICATION. CLIENT ROOM ID IS: " + id)
-    setID(id)
+    setMessageRecieved(!messageRecieved)
   })
 
+
+  // this one works really well
+  useEffect(() => {
+    setMessages(chatMessages)
+    console.log(messages)
+  }, [messageSent, messageRecieved])
+  
+  function displayShit(){
+    alert('Id ' + clientId + ' Room Code ' + room)
+  }
 
   return (
     <div className="App">
       <div id="initial-screen">
-        <CreateButton socket={socket} />
-        <JoinButton />
+        <CreateButton socket={socket} startedChatting={startedChatting} setStartedChatting={setStartedChatting} />
+        <JoinButton socket={socket} startedChatting={startedChatting} setStartedChatting={setStartedChatting} />
         <RoomEntry />
       </div>
-      <div id="chat-screen">
-        <ChatDisplay />
-        <ChatEntry />
-        <SendButton />
+      <div id="chat-screen" style={{display: "none"}}>
+        <ChatDisplay socket={socket} messages={messages} id={clientId}/>
+        <ChatEntry input={input} setInput={setInput} />
+        <SendButton socket={socket} input={input} setInput={setInput} messageSent={messageSent} setMessageSent={setMessageSent} />
       </div>
+      <button type="button" onClick={displayShit}>Toot</button>
     </div>
   );
 }

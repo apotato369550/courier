@@ -1,9 +1,9 @@
 import React from "react";
 
-const JoinButton = ({ socket }) => {
+const JoinButton = ({ socket, roomCode, username }) => {
 
     const joinRoomHandler = (event) => {
-        socket.emit("joinRoom");
+        socket.emit("joinRoom", roomCode, username);
     }
    
     return (

@@ -7,8 +7,9 @@ const ChatDisplay = ({ socket, messages, setMessages, id }) => {
    return (
         <div className="overflow-auto">
             <p>Chat Display: </p>
-            {messages.map(message => {
-                return <Message message={message} />
+            {messages.map(data => {
+                console.log("Data")
+                return <Message message={data.text} username={data.username} />
             })}
         </div>
     )

@@ -1,10 +1,10 @@
 import React from "react";
 
-const Message = ({ message }) => {
+const Message = ({ message, username }) => {
    // use for loop to render messages
    // completely forgot to add a username feature
     return (
-        <p>{message}</p>
+        <p><span>{username}: </span>{message}</p>
     )
 }
 

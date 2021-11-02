@@ -6,6 +6,7 @@ import RoomEntry from './components/roomEntry';
 import ChatDisplay from './components/chatDisplay';
 import ChatEntry from './components/chatEntry';
 import SendButton from './components/sendButton';
+import UsernameEntry from './components/usernameEntry';
 import React, { useState, useEffect } from "react";
 // make a form component
 // create room component
@@ -15,6 +16,7 @@ const socket = io.connect("http://localhost:4000")
 const chatMessages = [];
 
 // i think this solves it
+let username = "";
 let clientId = 0;
 let room = "";
 
@@ -25,7 +27,7 @@ socket.on("newMessage", (newMessage) => {
   const data = JSON.parse(newMessage)
   // console.log("A NEW MESSAGE HAS BEEN RECIEVED. THE NEW MESSAGE: " + message.text)
   // console.log("THIS MESSAGE CAME FROM: " + message.id)
-  chatMessages.push(data.text)
+  chatMessages.push(data)
   // console.log(chatMessages)
 
 })
@@ -38,16 +40,18 @@ socket.on("roomCode", (code) => {
   // console.log(room)
 })
 
-socket.on("initialize", (id) => {
+socket.on("initialize", (id, user) => {
   document.getElementById("initial-screen").style.display = "none";
   document.getElementById("chat-screen").style.display = "block";
   clientId = id;
+  username = user;
   console.log("ID Recieved: " + clientId)
 })
 
 function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [username, setUsername] = useState("")
   const [startedChatting, setStartedChatting] = useState(0);
   const [messageSent, setMessageSent] = useState(0);
   const [messageRecieved, setMessageRecieved] = useState(0);
@@ -75,14 +79,15 @@ function App() {
   return (
     <div className="App">
       <div id="initial-screen">
-        <CreateButton socket={socket} startedChatting={startedChatting} setStartedChatting={setStartedChatting} />
-        <JoinButton socket={socket} startedChatting={startedChatting} setStartedChatting={setStartedChatting} />
-        <RoomEntry />
+        <CreateButton socket={socket} username={username} startedChatting={startedChatting} setStartedChatting={setStartedChatting} />
+        <JoinButton socket={socket} username={username} startedChatting={startedChatting} setStartedChatting={setStartedChatting} />
+        <UsernameEntry username={username} setUsername={setUsername} />
+        <RoomEntry />        
       </div>
       <div id="chat-screen" style={{display: "none"}}>
         <ChatDisplay socket={socket} messages={messages} id={clientId}/>
         <ChatEntry input={input} setInput={setInput} />
-        <SendButton socket={socket} input={input} setInput={setInput} messageSent={messageSent} setMessageSent={setMessageSent} />
+        <SendButton socket={socket} input={input} username={username} setInput={setInput} messageSent={messageSent} setMessageSent={setMessageSent} />
       </div>
       <button type="button" onClick={displayShit}>Toot</button>
     </div>

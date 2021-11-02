@@ -18,12 +18,14 @@ function makeID(length){
 }
 
 io.on("connection", client => {
+    // learn how to recieve emits w/ parameters
+
     console.log(client)
     client.on("message", messageHandler)
     client.on("createRoom", createRoomHandler)
     client.on("joinRoom", joinRoomHandler)
 
-    function joinRoomHandler(roomCode){
+    function joinRoomHandler(roomCode, username){
         // work on join room handler
         const room = io.sockets.adapter.rooms[roomCode];
 
@@ -49,10 +51,10 @@ io.on("connection", client => {
         clientCount[client.id]++;
         client.number = clientCount[client.id];
 
-        client.emit("initialize", client.number)
+        client.emit("initialize", client.number, username)
     }
 
-    function createRoomHandler(){
+    function createRoomHandler(username){
         let roomCode = makeID(5);
         // client.id?
         console.log(client.id);
@@ -76,7 +78,8 @@ io.on("connection", client => {
         // i better fucking make sure that this works
 
         let data = {
-            text: newMessage,
+            username: newMessage.username,
+            text: newMessage.text,
             id: client.id
         }
 

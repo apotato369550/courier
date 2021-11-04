@@ -27,7 +27,14 @@ io.on("connection", client => {
 
     function joinRoomHandler(roomCode, username){
         // work on join room handler
+        // this doesn't allow the thing to connect
+        console.log("Room Code " + roomCode)
+        console.log("Username: " + username)
+
+        /*
         const room = io.sockets.adapter.rooms[roomCode];
+        // does this work??? ^^^ print code and shit
+        console.log("Room: " + room)
 
         let users;
         if(room){
@@ -43,8 +50,21 @@ io.on("connection", client => {
             console.log("Having trouble finding sockets...")
         }
 
-        if(clients == 0){
-            client.emit("unknownRoom")
+        console.log("Clients: " + clients)
+
+        if(!clients){
+            client.emit("unknownRoom");
+            return;
+        }
+        */
+        
+        // make handler for when room doesn't exist
+        try {
+            client.join(roomCode);
+            console.log("Client Successfully joined room!")
+        } catch (e) {
+            console.log("Unable to join room:(")
+            return;
         }
 
         clientRooms[client.id] = roomCode;
@@ -66,7 +86,7 @@ io.on("connection", client => {
         client.join(roomCode);
         // try to remember what these things did below in the original programVVV
         client.number = clientCount[client.id]; // this is for the client's id to be accessed
-        client.emit("initialize", client.number);
+        client.emit("initialize", client.number, username);
     }
 
     function messageHandler(newMessage){

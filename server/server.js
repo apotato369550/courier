@@ -20,7 +20,6 @@ function makeID(length){
 io.on("connection", client => {
     // learn how to recieve emits w/ parameters
 
-    console.log(client)
     client.on("message", messageHandler)
     client.on("createRoom", createRoomHandler)
     client.on("joinRoom", joinRoomHandler)
@@ -30,42 +29,19 @@ io.on("connection", client => {
         // this doesn't allow the thing to connect
         console.log("Room Code " + roomCode)
         console.log("Username: " + username)
+        console.log("Client ID: " + client.id)
 
-        /*
-        const room = io.sockets.adapter.rooms[roomCode];
-        // does this work??? ^^^ print code and shit
-        console.log("Room: " + room)
-
-        let users;
-        if(room){
-            users = room.sockets;
+        if(io.sockets.adapter.rooms.has(roomCode)){
+            console.log("Joining Room...")
+            client.join(roomCode)
         } else {
-            console.log("Having trouble finding room...")
-        }
-
-        let clients;
-        if(users){
-            clients = Object.keys(users).length;
-        } else {
-            console.log("Having trouble finding sockets...")
-        }
-
-        console.log("Clients: " + clients)
-
-        if(!clients){
+            console.log("Room doesn't exist...")
             client.emit("unknownRoom");
             return;
         }
-        */
-        
-        // make handler for when room doesn't exist
-        try {
-            client.join(roomCode);
-            console.log("Client Successfully joined room!")
-        } catch (e) {
-            console.log("Unable to join room:(")
-            return;
-        }
+
+        // LET'S FUCKING GOOOOOOOOOO
+    
 
         clientRooms[client.id] = roomCode;
         clientCount[client.id]++;
@@ -75,9 +51,9 @@ io.on("connection", client => {
     }
 
     function createRoomHandler(username){
+        // instead of roomcode, make it client code??
         let roomCode = makeID(5);
         // client.id?
-        console.log(client.id);
         clientRooms[client.id] = roomCode;
         clientCount[client.id] = 1;
         // create a handler for the roomcode VVV
@@ -106,8 +82,6 @@ io.on("connection", client => {
         // might emit to every socket, but yours
         // i think this might be the problemVVVV 
         io.sockets.in(roomName).emit("newMessage", JSON.stringify(data))
-        
-        console.log(data)
     }
 })
 

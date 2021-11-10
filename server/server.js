@@ -23,6 +23,7 @@ io.on("connection", client => {
     client.on("message", messageHandler)
     client.on("createRoom", createRoomHandler)
     client.on("joinRoom", joinRoomHandler)
+    client.on("clientExit", clientExitHandler)
 
     function joinRoomHandler(roomCode, username){
         // work on join room handler
@@ -48,6 +49,8 @@ io.on("connection", client => {
         client.number = clientCount[client.id];
 
         client.emit("initialize", client.number, username)
+
+        
     }
 
     function createRoomHandler(username){
@@ -63,6 +66,8 @@ io.on("connection", client => {
         // try to remember what these things did below in the original programVVV
         client.number = clientCount[client.id]; // this is for the client's id to be accessed
         client.emit("initialize", client.number, username);
+        let data = {username: "Server", text: "Your room code is: " + roomCode};
+        io.sockets.in(clientRooms[client.id]).emit("newMessage", JSON.stringify(data))
     }
 
     function messageHandler(newMessage){
@@ -82,7 +87,27 @@ io.on("connection", client => {
         // might emit to every socket, but yours
         // i think this might be the problemVVVV 
         io.sockets.in(roomName).emit("newMessage", JSON.stringify(data))
+        // add separate handlers for initializing
     }
+
+    function clientExitHandler(username){
+        const roomName = clientRooms[client.id];
+        if(!roomName){
+            return;
+        }
+        io.sockets.in(roomName).emit("clientDisconnected", username)
+    }
+
+    client.on("disconnect", () => {
+        // work on how to & how to deal w/ disconnect
+        // hmmm
+        // get rid of connection here in rooms?
+        // get rid of username and id and stuff
+        console.log("This client has disconnected: " + client);
+        client.emit("exitRoom")
+        // figure this shit out
+        // recieve parameters here
+    })
 })
 
 // where the fuck are the messages coming from

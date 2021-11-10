@@ -33,6 +33,7 @@ socket.on("newMessage", (newMessage) => {
 
 })
 
+
 socket.on("roomCode", (code) => {
   // console.log("ROOM CODE RECIEVED. THE CURRENT ROOM CODE IS: " + roomCode);
   room = code;
@@ -47,7 +48,7 @@ socket.on("initialize", (id, user) => {
   clientId = id;
   username = user;
   console.log("ID Recieved: " + clientId)
-  socket.emit("message", {username: "Server", text: "Your room code is: " + room})
+  // socket.emit("message", {username: "Server", text: "Your room code is: " + room})
 })
 
 function App() {
@@ -65,7 +66,7 @@ function App() {
   // figure this mf out
   // only variables that are usestate variables will be allowed in useffect
   // this should, in theory, work
-  socket.on("newMessage", (newMessage) => {
+  socket.on("newMessage", () => {
     setMessageRecieved(!messageRecieved)
   })
 
@@ -74,6 +75,21 @@ function App() {
     // finish working on error handler
     console.log("Unknown room:(")
     setErrorNumber(3)
+  })
+
+  socket.on("exitRoom", () => {
+    socket.emit("clientExit", username)
+  })
+
+  socket.on("clientDisconnected", (username) => {
+    // setmessage recieved here
+    // appropriate handlers here as well
+    let message = {
+      username: "Server",
+      text: username + " has left the server"
+    }
+    chatMessages.push(message)
+    setMessageRecieved(!messageRecieved);
   })
 
 
@@ -90,8 +106,8 @@ function App() {
   return (
     <div className="App">
       <div id="initial-screen">
-        <CreateButton socket={socket} username={username} startedChatting={startedChatting} setStartedChatting={setStartedChatting} />
-        <JoinButton socket={socket} roomCode={roomInput} username={username} startedChatting={startedChatting} setStartedChatting={setStartedChatting} />
+        <CreateButton socket={socket} username={username} startedChatting={startedChatting} setStartedChatting={setStartedChatting} setErrorNumber={setErrorNumber} />
+        <JoinButton socket={socket} roomCode={roomInput} username={username} startedChatting={startedChatting} setStartedChatting={setStartedChatting} setErrorNumber={setErrorNumber} />
         <UsernameEntry username={username} setUsername={setUsername} />
         <RoomEntry roomInput={roomInput} setRoomInput={setRoomInput} />        
       </div>

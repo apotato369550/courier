@@ -49,7 +49,9 @@ io.on("connection", client => {
         client.number = clientCount[client.id];
 
         client.emit("initialize", client.number, username)
-
+        let joinMessage = { username: "Server", text: username + " has joined the room"}
+        io.sockets.in(clientRooms[client.id]).emit("newMessage", JSON.stringify(joinMessage))
+        
         
     }
 
@@ -66,6 +68,10 @@ io.on("connection", client => {
         // try to remember what these things did below in the original programVVV
         client.number = clientCount[client.id]; // this is for the client's id to be accessed
         client.emit("initialize", client.number, username);
+        
+        let createMessage = { username: "Server", text: username + " has created this room."}
+        io.sockets.in(clientRooms[client.id]).emit("newMessage", JSON.stringify(createMessage))
+
         let data = {username: "Server", text: "Your room code is: " + roomCode};
         io.sockets.in(clientRooms[client.id]).emit("newMessage", JSON.stringify(data))
     }

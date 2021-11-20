@@ -1,7 +1,7 @@
 import React from "react";
 import Message from "../components/message.jsx";
 
-const ChatDisplay = ({ socket, messages, setMessages, id }) => {
+const ChatDisplay = ({ messages }) => {
    // map messages and stuff
 
    return (

@@ -18,14 +18,13 @@ const chatMessages = [];
 
 // i think this solves it
 let username = "";
-let clientId = 0;
 let room = "";
 
 // check react tutorial video on how to deal w/ this
 
-socket.on("newMessage", (newMessage) => {
-  console.log(newMessage)
-  const data = JSON.parse(newMessage)
+socket.on("message", (message) => {
+  console.log(message)
+  const data = JSON.parse(message)
   // console.log("A NEW MESSAGE HAS BEEN RECIEVED. THE NEW MESSAGE: " + message.text)
   // console.log("THIS MESSAGE CAME FROM: " + message.id)
   chatMessages.push(data)
@@ -42,12 +41,10 @@ socket.on("roomCode", (code) => {
   // console.log(room)
 })
 
-socket.on("initialize", (id, user) => {
+socket.on("initialize", (user) => {
   document.getElementById("initial-screen").style.display = "none";
   document.getElementById("chat-screen").style.display = "block";
-  clientId = id;
   username = user;
-  console.log("ID Recieved: " + clientId)
   // socket.emit("message", {username: "Server", text: "Your room code is: " + room})
 })
 
@@ -66,7 +63,7 @@ function App() {
   // figure this mf out
   // only variables that are usestate variables will be allowed in useffect
   // this should, in theory, work
-  socket.on("newMessage", () => {
+  socket.on("message", () => {
     setMessageRecieved(!messageRecieved)
   })
 
@@ -99,9 +96,6 @@ function App() {
     console.log(messages)
   }, [messageSent, messageRecieved])
   
-  function displayShit(){
-    alert('Id ' + clientId + ' Room Code ' + room)
-  }
 
   return (
     <div className="App">
@@ -112,12 +106,12 @@ function App() {
         <RoomEntry roomInput={roomInput} setRoomInput={setRoomInput} />        
       </div>
       <div id="chat-screen" style={{display: "none"}}>
-        <ChatDisplay socket={socket} messages={messages} id={clientId}/>
+        <ChatDisplay messages={messages}/>
+        {username}
         <ChatEntry input={input} setInput={setInput} />
         <SendButton socket={socket} input={input} username={username} setInput={setInput} messageSent={messageSent} setMessageSent={setMessageSent} />
       </div>
       <Error errorNumber={errorNumber} />
-      <button type="button" onClick={displayShit}>Toot</button>
     </div>
   );
 }

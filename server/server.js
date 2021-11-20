@@ -5,7 +5,6 @@ const server = require("http").Server(app)
 const io = require("socket.io")(server)
 
 const clientRooms = {};
-const clientCount = {};
 
 function makeID(length){
     var result = "";
@@ -42,15 +41,15 @@ io.on("connection", client => {
         }
 
         // LET'S FUCKING GOOOOOOOOOO
-    
-
         clientRooms[client.id] = roomCode;
-        clientCount[client.id]++;
-        client.number = clientCount[client.id];
+        client.username = username;
 
         client.emit("initialize", client.number, username)
-        let joinMessage = { username: "Server", text: username + " has joined the room"}
-        io.sockets.in(clientRooms[client.id]).emit("newMessage", JSON.stringify(joinMessage))
+        let message = { 
+            username: "Server", 
+            text: client.username + " has joined the room"
+        }
+        io.sockets.in(clientRooms[client.id]).emit("message", JSON.stringify(message))
         
         
     }
@@ -60,23 +59,27 @@ io.on("connection", client => {
         let roomCode = makeID(5);
         // client.id?
         clientRooms[client.id] = roomCode;
-        clientCount[client.id] = 1;
+        client.username = username;
         // create a handler for the roomcode VVV
         client.emit("roomCode", roomCode);
-
         client.join(roomCode);
         // try to remember what these things did below in the original programVVV
-        client.number = clientCount[client.id]; // this is for the client's id to be accessed
-        client.emit("initialize", client.number, username);
+        client.emit("initialize", client.number, client.username);
         
-        let createMessage = { username: "Server", text: username + " has created this room."}
-        io.sockets.in(clientRooms[client.id]).emit("newMessage", JSON.stringify(createMessage))
+        let message = { 
+            username: "Server", 
+            text: username + " has created this room."
+        }
+        io.sockets.in(clientRooms[client.id]).emit("message", JSON.stringify(message))
 
-        let data = {username: "Server", text: "Your room code is: " + roomCode};
-        io.sockets.in(clientRooms[client.id]).emit("newMessage", JSON.stringify(data))
+        message = {
+            username: "Server", 
+            text: "Your room code is: " + roomCode
+        };
+        io.sockets.in(clientRooms[client.id]).emit("message", JSON.stringify(data))
     }
 
-    function messageHandler(newMessage){
+    function messageHandler(data){
         const roomName = clientRooms[client.id];
         if(!roomName){
             return;
@@ -84,24 +87,31 @@ io.on("connection", client => {
 
         // i better fucking make sure that this works
 
-        let data = {
-            username: newMessage.username,
-            text: newMessage.text,
-            id: client.id
+        // try make client.id the username of the client. maybe that'll work
+
+        let message = {
+            username: data.username,
+            text: data.text
         }
 
         // might emit to every socket, but yours
         // i think this might be the problemVVVV 
-        io.sockets.in(roomName).emit("newMessage", JSON.stringify(data))
+        io.sockets.in(roomName).emit("message", JSON.stringify(message))
         // add separate handlers for initializing
     }
 
     function clientExitHandler(username){
+        console.log(username + " has exited the chatroom")
         const roomName = clientRooms[client.id];
         if(!roomName){
             return;
         }
-        io.sockets.in(roomName).emit("clientDisconnected", username)
+        
+        let message = {
+            username: "Server",
+            text: username + " has left the server"
+        }
+        io.sockets.in(roomName).emit("message", message)
     }
 
     client.on("disconnect", () => {
@@ -109,10 +119,12 @@ io.on("connection", client => {
         // hmmm
         // get rid of connection here in rooms?
         // get rid of username and id and stuff
-        console.log("This client has disconnected: " + client);
-        client.emit("exitRoom")
-        // figure this shit out
-        // recieve parameters here
+        console.log("A client has disconnected: " + client.username);
+        let message = {
+            text: username + " has left the chatroom",
+            username: "Server"
+        }
+        io.sockets.in(roomName).emit("message", message)
     })
 })
 

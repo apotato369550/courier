@@ -96,6 +96,7 @@ function App() {
     console.log(messages)
   }, [messageSent, messageRecieved])
   
+  // add event handlers for text message inputs
 
   return (
     <div className="App">
@@ -108,7 +109,7 @@ function App() {
       <div id="chat-screen" style={{display: "none"}}>
         <ChatDisplay messages={messages}/>
         {username}
-        <ChatEntry input={input} setInput={setInput} />
+        <ChatEntry input={input} setInput={setInput} socket={socket} messageSent={messageSent} setMessageSent={setMessageSent} username={username} />
         <SendButton socket={socket} input={input} username={username} setInput={setInput} messageSent={messageSent} setMessageSent={setMessageSent} />
       </div>
       <Error errorNumber={errorNumber} />

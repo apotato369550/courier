@@ -16,6 +16,7 @@ const SendButton = ({ socket, input, username, setInput, messageSent, setMessage
         setInput("")
     }
 
+
     return (
         <button onClick={sendHandler}>Send Message</button>
     )

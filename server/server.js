@@ -76,7 +76,7 @@ io.on("connection", client => {
             username: "Server", 
             text: "Your room code is: " + roomCode
         };
-        io.sockets.in(clientRooms[client.id]).emit("message", JSON.stringify(data))
+        io.sockets.in(clientRooms[client.id]).emit("message", JSON.stringify(message))
     }
 
     function messageHandler(data){
@@ -121,9 +121,10 @@ io.on("connection", client => {
         // get rid of username and id and stuff
         console.log("A client has disconnected: " + client.username);
         let message = {
-            text: username + " has left the chatroom",
+            text: client.username + " has left the chatroom",
             username: "Server"
         }
+        const roomName = clientRooms[client.id];
         io.sockets.in(roomName).emit("message", message)
     })
 })

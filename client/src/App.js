@@ -32,6 +32,14 @@ socket.on("message", (message) => {
 
 })
 
+socket.on("clientDisconnected", (username) => {
+  // this ain't recieving??
+  let message = {
+    username: "Server",
+    text: username + " has left the server"
+  }
+  chatMessages.push(message)
+})
 
 socket.on("roomCode", (code) => {
   // console.log("ROOM CODE RECIEVED. THE CURRENT ROOM CODE IS: " + roomCode);
@@ -81,12 +89,8 @@ function App() {
   socket.on("clientDisconnected", (username) => {
     // setmessage recieved here
     // appropriate handlers here as well
-    let message = {
-      username: "Server",
-      text: username + " has left the server"
-    }
-    chatMessages.push(message)
     setMessageRecieved(!messageRecieved);
+    // why is this triggering so many times???
   })
 
 

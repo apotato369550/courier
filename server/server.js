@@ -120,12 +120,15 @@ io.on("connection", client => {
         // get rid of connection here in rooms?
         // get rid of username and id and stuff
         console.log("A client has disconnected: " + client.username);
-        let message = {
-            text: client.username + " has left the chatroom",
-            username: "Server"
-        }
         const roomName = clientRooms[client.id];
-        io.sockets.in(roomName).emit("message", message)
+        console.log("Room Name: " + roomName)
+        // view previous git commits on how to print each socket
+        
+        // fix this??
+        // let clientsList = io.sockets.clients();
+
+        // this part doesn't work lagi???
+        io.sockets.in(roomName).emit("clientDisconnected", client.username)
     })
 })
 
